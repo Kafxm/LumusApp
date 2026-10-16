@@ -1,0 +1,13 @@
+Los roles del equipo de Lumus fueron:
+
+William López Mena, Matías Jiménez Flórez y Salomé Muñoz Blandón hicieron en conjunto el desarrollo del documento de Word.
+
+
+William López Mena se encargó de hacer el diseño del diagrama UML del proyecto (Con pequeñas opiniones y ayudas de sus compañeros) y la documentación
+
+
+Salomé Muñoz Blandón se encargó de realizar logos y diseños, una buena parte de las Historias de Usuario del proyecto de Lumus, a su vez prestó ayuda para la realización de la maqueta y ayudó a la realización del diagrama UML
+
+
+
+Matías Jiménez Flórez se encargó de realizar la maqueta (Con ayuda de Salomé Muñoz Blandón) con sus Inicios de Sesión, registro (Así como el bloqueo por 3 minutos) y sistema de guardado en la localStorage, Aportó a las historias de usuario y se encargó de crear el Repositorio en GitHub y subir las pruebas allí
