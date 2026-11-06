@@ -59,57 +59,60 @@ export function PortfolioView({ onUpgrade }) {
         toast.success('Perfil actualizado');
     }
     return (<div className="flex flex-col gap-8">
-      <SectionHeader eyebrow="Módulo Creador" title="Mi portafolio" description="Tu reputación se construye con evidencia. Mantén tu perfil y proyectos actualizados." action={<Button onClick={handleNewProject} className="h-9 px-3">
+      <SectionHeader eyebrow="Módulo Creador" title="Mi portafolio" description="Tu reputación se construye con evidencia. Mantén tu perfil y proyectos actualizados." action={<Button onClick={handleNewProject} className="h-10 px-3 shadow-sm">
             <Plus aria-hidden="true"/>
             Nuevo proyecto
           </Button>}/>
 
-      <section aria-label="Perfil público" className="rounded-2xl border bg-card p-5 sm:p-6">
-        {editing ? (<form onSubmit={handleSaveProfile} className="flex flex-col gap-4">
-            <h2 className="font-medium">Editar perfil público</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="profile-title">Titular profesional</Label>
-                <Input id="profile-title" name="title" defaultValue={creator.title} maxLength={80}/>
+      <section aria-label="Perfil público" className="lumus-panel relative overflow-hidden bg-gradient-to-br from-white via-white to-primary/5 p-5 sm:p-6">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(114,157,242,0.12),transparent_30%)]" aria-hidden="true"/>
+        <div className="relative">
+          {editing ? (<form onSubmit={handleSaveProfile} className="flex flex-col gap-4">
+              <h2 className="text-lg font-medium">Editar perfil público</h2>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="profile-title">Titular profesional</Label>
+                  <Input id="profile-title" name="title" defaultValue={creator.title} maxLength={80} className="h-10"/>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="profile-location">Lugar de residencia</Label>
+                  <Input id="profile-location" name="location" defaultValue={creator.location === 'Por definir' ? '' : creator.location} placeholder="Medellín, Colombia" maxLength={80} className="h-10"/>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="profile-github">Perfil de GitHub</Label>
+                  <Input id="profile-github" name="github" type="url" defaultValue={creator.github} placeholder="Opcional: https://github.com/usuario" className="h-10"/>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="profile-skills">Habilidades</Label>
+                  <Input id="profile-skills" name="skills" defaultValue={creator.skills.join(', ')} placeholder="React, Diseño UI, Comunicación" className="h-10"/>
+                  <p className="text-xs text-muted-foreground">Separa cada habilidad con una coma.</p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="profile-languages">Lenguajes</Label>
+                  <Input id="profile-languages" name="languages" defaultValue={creator.languages.join(', ')} placeholder="JavaScript, Python" className="h-10"/>
+                  <p className="text-xs text-muted-foreground">Separa cada lenguaje con una coma.</p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="profile-databases">Bases de datos</Label>
+                  <Input id="profile-databases" name="databases" defaultValue={creator.databases.join(', ')} placeholder="PostgreSQL, MongoDB" className="h-10"/>
+                  <p className="text-xs text-muted-foreground">Separa cada base de datos con una coma.</p>
+                </div>
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="profile-location">Lugar de residencia</Label>
-                <Input id="profile-location" name="location" defaultValue={creator.location === 'Por definir' ? '' : creator.location} placeholder="Medellín, Colombia" maxLength={80}/>
+                <Label htmlFor="profile-bio">Biografía</Label>
+                <Textarea id="profile-bio" name="bio" defaultValue={creator.bio} rows={4} maxLength={500} className="resize-none"/>
               </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="profile-github">Perfil de GitHub</Label>
-                <Input id="profile-github" name="github" type="url" defaultValue={creator.github} placeholder="Opcional: https://github.com/usuario"/>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setEditing(false)}>
+                  Cancelar
+                </Button>
+                <Button type="submit">Guardar cambios</Button>
               </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="profile-skills">Habilidades</Label>
-                <Input id="profile-skills" name="skills" defaultValue={creator.skills.join(', ')} placeholder="React, Diseño UI, Comunicación"/>
-                <p className="text-xs text-muted-foreground">Separa cada habilidad con una coma.</p>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="profile-languages">Lenguajes</Label>
-                <Input id="profile-languages" name="languages" defaultValue={creator.languages.join(', ')} placeholder="JavaScript, Python"/>
-                <p className="text-xs text-muted-foreground">Separa cada lenguaje con una coma.</p>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="profile-databases">Bases de datos</Label>
-                <Input id="profile-databases" name="databases" defaultValue={creator.databases.join(', ')} placeholder="PostgreSQL, MongoDB"/>
-                <p className="text-xs text-muted-foreground">Separa cada base de datos con una coma.</p>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="profile-bio">Biografía</Label>
-              <Textarea id="profile-bio" name="bio" defaultValue={creator.bio} rows={4} maxLength={500}/>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setEditing(false)}>
-                Cancelar
-              </Button>
-              <Button type="submit">Guardar cambios</Button>
-            </div>
-          </form>) : (<CreatorSummary creator={creator} actions={<Button variant="outline" size="sm" onClick={() => setEditing(true)}>
-                <Pencil aria-hidden="true"/>
-                Editar
-              </Button>}/>)}
+            </form>) : (<CreatorSummary creator={creator} actions={<Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+                  <Pencil aria-hidden="true"/>
+                  Editar
+                </Button>}/>)}
+        </div>
       </section>
 
       <section aria-labelledby="projects-heading" className="flex flex-col gap-4">

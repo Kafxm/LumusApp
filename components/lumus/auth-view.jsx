@@ -15,6 +15,36 @@ const LOCKOUT_UNTIL_KEY = 'lockoutUntil';
 const MAX_FAILED_ATTEMPTS = 3;
 const LOCKOUT_DURATION = 3 * 60 * 1000;
 const VALID_ROLES = ['creador', 'empresa', 'admin'];
+const ADMIN_ACCOUNT = {
+    name: 'Administrador Lumus',
+    email: 'admin@lumus.com',
+    identification: '1000000000',
+    password: 'Admin1234!',
+    role: 'admin',
+};
+
+async function ensureDefaultAdminUser() {
+    const users = getUsers();
+    const adminExists = users.some((user) => String(user.email).toLowerCase() === ADMIN_ACCOUNT.email);
+
+    if (adminExists) return users;
+
+    const salt = toBase64(window.crypto.getRandomValues(new Uint8Array(16)));
+    const passwordHash = await hashPassword(ADMIN_ACCOUNT.password, salt);
+    const adminUser = {
+        id: 'admin-lumus-seed',
+        name: ADMIN_ACCOUNT.name,
+        identification: ADMIN_ACCOUNT.identification,
+        email: ADMIN_ACCOUNT.email,
+        role: ADMIN_ACCOUNT.role,
+        creatorId: null,
+        passwordHash,
+        salt,
+    };
+
+    window.localStorage.setItem(USERS_KEY, JSON.stringify([...users, adminUser]));
+    return [...users, adminUser];
+}
 
 function getUsers() {
     const rawUsers = window.localStorage.getItem(USERS_KEY);
@@ -88,26 +118,29 @@ export function AuthView({ onAuthenticated, onCancel, initialMode = 'login', ini
     const [now, setNow] = useState(Date.now());
 
     useEffect(() => {
-        try {
-            const storedAttempts = Number(window.localStorage.getItem(FAILED_ATTEMPTS_KEY) || 0);
-            const storedLockout = Number(window.localStorage.getItem(LOCKOUT_UNTIL_KEY) || 0);
-            const validAttempts = Number.isInteger(storedAttempts) && storedAttempts >= 0 ? storedAttempts : 0;
-            const validLockout = Number.isFinite(storedLockout) && storedLockout > Date.now() ? storedLockout : 0;
+        (async () => {
+            try {
+                await ensureDefaultAdminUser();
+                const storedAttempts = Number(window.localStorage.getItem(FAILED_ATTEMPTS_KEY) || 0);
+                const storedLockout = Number(window.localStorage.getItem(LOCKOUT_UNTIL_KEY) || 0);
+                const validAttempts = Number.isInteger(storedAttempts) && storedAttempts >= 0 ? storedAttempts : 0;
+                const validLockout = Number.isFinite(storedLockout) && storedLockout > Date.now() ? storedLockout : 0;
 
-            setFailedAttempts(validAttempts);
-            setLockoutUntil(validLockout);
-            setNow(Date.now());
+                setFailedAttempts(validAttempts);
+                setLockoutUntil(validLockout);
+                setNow(Date.now());
 
-            if (!validLockout && storedLockout) {
-                window.localStorage.removeItem(LOCKOUT_UNTIL_KEY);
-                window.localStorage.removeItem(FAILED_ATTEMPTS_KEY);
+                if (!validLockout && storedLockout) {
+                    window.localStorage.removeItem(LOCKOUT_UNTIL_KEY);
+                    window.localStorage.removeItem(FAILED_ATTEMPTS_KEY);
+                }
+            } catch (error) {
+                console.error('No se pudo recuperar el estado de autenticación.', error);
+                setMessage('No se pudo acceder al almacenamiento local. Revisa la configuración del navegador.');
+            } finally {
+                setReady(true);
             }
-        } catch (error) {
-            console.error('No se pudo recuperar el estado de autenticación.', error);
-            setMessage('No se pudo acceder al almacenamiento local. Revisa la configuración del navegador.');
-        } finally {
-            setReady(true);
-        }
+        })();
     }, []);
 
     useEffect(() => {
@@ -134,6 +167,7 @@ export function AuthView({ onAuthenticated, onCancel, initialMode = 'login', ini
     const minutes = Math.floor(remainingSeconds / 60);
     const seconds = remainingSeconds % 60;
     const isLocked = remainingSeconds > 0;
+    const lockoutProgress = lockoutUntil ? Math.max(8, (remainingSeconds / (LOCKOUT_DURATION / 1000)) * 100) : 0;
 
     async function handleSubmit(event) {
         event.preventDefault();
@@ -158,8 +192,8 @@ export function AuthView({ onAuthenticated, onCancel, initialMode = 'login', ini
             }
 
             if (mode === 'register') {
-                if (!['creador', 'empresa', 'admin'].includes(selectedRole)) {
-                    throw new Error('Selecciona un rol válido para crear la cuenta.');
+                if (!['creador', 'empresa'].includes(selectedRole)) {
+                    throw new Error('El acceso de administrador se gestiona desde una cuenta especial de Lumus.');
                 }
                 if (password !== repeatedPassword) {
                     setMessage('Las contraseñas no coinciden.');
@@ -265,14 +299,30 @@ export function AuthView({ onAuthenticated, onCancel, initialMode = 'login', ini
                     <div
                         role="alert"
                         aria-live="assertive"
-                        className="mb-5 flex gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+                        className="mb-4"
                     >
-                        <ShieldAlert className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
-                        <p>
-                            Acceso bloqueado por seguridad. Inténtalo de nuevo en {minutes}{' '}
-                            {minutes === 1 ? 'minuto' : 'minutos'} / {seconds}{' '}
-                            {seconds === 1 ? 'segundo' : 'segundos'}.
-                        </p>
+                        <div className="mx-auto flex w-full max-w-[240px] items-center justify-center gap-2 rounded-[22px] border border-red-100 bg-red-50 px-3 py-2 shadow-[0_10px_24px_rgba(153,27,27,0.04)]">
+                            <div className="flex items-center gap-1.5 text-red-600">
+                                <ShieldAlert className="size-3.5" aria-hidden="true" />
+                                <p className="text-[11px] font-medium leading-tight text-red-600">
+                                    Acceso bloqueado por seguridad.
+                                </p>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                                <div className="flex min-w-[52px] flex-col items-center rounded-lg bg-white/80 px-1.5 py-1">
+                                    <span className="text-[7px] font-medium uppercase tracking-[0.12em] text-red-400">MIN</span>
+                                    <span className="text-base font-semibold leading-none text-red-700">
+                                        {String(minutes).padStart(2, '0')}
+                                    </span>
+                                </div>
+                                <div className="flex min-w-[52px] flex-col items-center rounded-lg bg-white/80 px-1.5 py-1">
+                                    <span className="text-[7px] font-medium uppercase tracking-[0.12em] text-red-400">SEG</span>
+                                    <span className="text-base font-semibold leading-none text-red-700">
+                                        {String(seconds).padStart(2, '0')}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -319,13 +369,12 @@ export function AuthView({ onAuthenticated, onCancel, initialMode = 'login', ini
                                 <select
                                     id="auth-role"
                                     name="role"
-                                    defaultValue={initialRole}
+                                    defaultValue={initialRole === 'admin' ? 'creador' : initialRole}
                                     disabled={!ready || busy || isLocked}
                                     className={cn(selectClass, 'h-10')}
                                 >
                                     <option value="creador">Creador</option>
                                     <option value="empresa">Empresa</option>
-                                    <option value="admin">Administrador</option>
                                 </select>
                             </div>
                         </>
@@ -422,6 +471,12 @@ export function AuthView({ onAuthenticated, onCancel, initialMode = 'login', ini
                         Volver a explorar Lumus
                     </Button>
                 )}
+
+                <div className="mt-6 rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs leading-relaxed text-foreground">
+                    <p className="mb-1 font-medium">Cuenta de administración</p>
+                    <p className="text-muted-foreground">Correo: admin@lumus.com</p>
+                    <p className="text-muted-foreground">Contraseña: Admin1234!</p>
+                </div>
 
                 <p className="mt-6 flex items-start gap-2 rounded-lg bg-muted/60 p-3 text-xs leading-relaxed text-muted-foreground">
                     <LockKeyhole className="mt-0.5 size-4 shrink-0" aria-hidden="true" />

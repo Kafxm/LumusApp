@@ -135,22 +135,20 @@ export function LumusProvider({ children }) {
         if (!plan || plan.price === 0)
             return s;
         const invoiceNumber = String(s.invoices.length + 113).padStart(4, '0');
-        const purchase = {
-            id: `INV-2026-${invoiceNumber}`,
-            planId: plan.id,
-            plan: plan.name,
-            amount: plan.price,
-            period: plan.period,
-            creatorId: s.currentCreatorId,
-            date: new Date().toISOString().slice(0, 10),
-            status: 'Pagada',
-        };
         return {
             ...s,
             premium: true,
             creators: s.creators.map((c) => (c.id === s.currentCreatorId ? { ...c, boosted: true } : c)),
-            purchases: [purchase, ...(s.purchases ?? [])],
-            invoices: [purchase, ...s.invoices],
+            invoices: [
+                {
+                    id: `INV-2026-${invoiceNumber}`,
+                    date: new Date().toISOString().slice(0, 10),
+                    plan: plan.name,
+                    amount: plan.price,
+                    status: 'Pagada',
+                },
+                ...s.invoices,
+            ],
         };
     }), []);
     const cancelSubscription = useCallback(() => setState((s) => ({
@@ -200,7 +198,7 @@ export function LumusProvider({ children }) {
             }
             : t),
     })), []);
-    const resetData = useCallback(() => setState({ ...seedState, role: 'admin' }), []);
+    const resetData = useCallback(() => setState({ ...seedState, role: 'invitado' }), []);
     const value = useMemo(() => ({
         state,
         hydrated,

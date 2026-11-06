@@ -33,20 +33,20 @@ export function InboxView() {
             ? 'Oportunidades y propuestas que las empresas te envían.'
             : 'Conversaciones con los creadores que has contactado.'}/>
 
-      {threads.length === 0 ? (<EmptyState icon={<Inbox className="size-5" aria-hidden="true"/>} title="Tu buzón está vacío" description="Cuando haya conversaciones aparecerán aquí."/>) : (<div className="grid min-h-[520px] overflow-hidden rounded-2xl border bg-card md:grid-cols-[320px_1fr]">
-          <ul aria-label="Conversaciones" className={cn('flex flex-col divide-y border-r', selected && 'hidden md:flex')}>
+      {threads.length === 0 ? (<EmptyState icon={<Inbox className="size-5" aria-hidden="true"/>} title="Tu buzón está vacío" description="Cuando haya conversaciones aparecerán aquí."/>) : (<div className="grid min-h-[520px] overflow-hidden rounded-[28px] border border-primary/10 bg-card shadow-[0_24px_72px_rgba(31,61,110,0.08)] md:grid-cols-[320px_1fr]">
+          <ul aria-label="Conversaciones" className={cn('flex flex-col divide-y border-r bg-slate-50/60', selected && 'hidden md:flex')}>
             {threads.map((thread) => {
                 const creator = state.creators.find((c) => c.id === thread.creatorId);
                 const last = thread.messages[thread.messages.length - 1];
                 const unread = isUnread(thread);
                 return (<li key={thread.id}>
-                  <button type="button" onClick={() => openThread(thread.id)} aria-current={thread.id === selectedId} className={cn('flex w-full gap-3 px-4 py-3.5 text-left outline-none transition-colors hover:bg-accent/60 focus-visible:bg-accent', thread.id === selectedId && 'bg-accent')}>
-                    {side === 'empresa' && creator ? (<CreatorAvatar creator={creator} className="size-9"/>) : (<span className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-muted-foreground">
+                  <button type="button" onClick={() => openThread(thread.id)} aria-current={thread.id === selectedId} className={cn('flex w-full gap-3 px-4 py-3.5 text-left outline-none transition-all duration-200 hover:bg-primary/5 focus-visible:bg-primary/5', thread.id === selectedId && 'bg-primary/5 ring-1 ring-primary/10')}>
+                    {side === 'empresa' && creator ? (<CreatorAvatar creator={creator} className="size-9"/>) : (<span className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-link ring-1 ring-primary/10">
                         <Building2 className="size-4" aria-hidden="true"/>
                       </span>)}
                     <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                       <span className="flex items-center justify-between gap-2">
-                        <span className={cn('truncate text-sm', unread ? 'font-semibold' : 'font-medium')}>
+                        <span className={cn('truncate text-sm', unread ? 'font-semibold text-foreground' : 'font-medium text-foreground/90')}>
                           {side === 'empresa' ? creator?.name : thread.company}
                         </span>
                         <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
@@ -64,9 +64,9 @@ export function InboxView() {
             })}
           </ul>
 
-          <section className={cn('flex flex-col', !selected && 'hidden md:flex')} aria-label="Conversación">
+          <section className={cn('flex flex-col bg-white/60', !selected && 'hidden md:flex')} aria-label="Conversación">
             {selected ? (<>
-                <header className="flex items-center gap-3 border-b px-4 py-3">
+                <header className="flex items-center gap-3 border-b bg-slate-50/70 px-4 py-3">
                   <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setSelectedId(null)} aria-label="Volver a conversaciones">
                     <ArrowLeft aria-hidden="true"/>
                   </Button>
@@ -79,11 +79,11 @@ export function InboxView() {
                     </p>
                   </div>
                 </header>
-                <ol className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
+                <ol className="flex flex-1 flex-col gap-3 overflow-y-auto bg-[radial-gradient(circle_at_top,_rgba(114,157,242,0.06),transparent_30%)] p-4">
                   {selected.messages.map((m) => {
                     const mine = m.from === side;
                     return (<li key={m.id} className={cn('flex max-w-[85%] flex-col gap-1', mine ? 'self-end items-end' : 'self-start')}>
-                        <p className={cn('rounded-2xl px-4 py-2.5 text-sm leading-relaxed', mine ? 'rounded-br-sm bg-primary text-primary-foreground' : 'rounded-bl-sm bg-secondary')}>
+                        <p className={cn('rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm', mine ? 'rounded-br-sm bg-primary text-primary-foreground' : 'rounded-bl-sm bg-secondary text-foreground')}>
                           {m.body}
                         </p>
                         <time className="font-mono text-[10px] text-muted-foreground" dateTime={m.date}>
@@ -92,7 +92,7 @@ export function InboxView() {
                       </li>);
                 })}
                 </ol>
-                <form onSubmit={handleSend} className="flex items-end gap-2 border-t p-3">
+                <form onSubmit={handleSend} className="flex items-end gap-2 border-t bg-white/80 p-3">
                   <label htmlFor="reply" className="sr-only">
                     Escribe una respuesta
                   </label>
@@ -103,7 +103,7 @@ export function InboxView() {
                         e.preventDefault();
                         handleSend();
                     }
-                }} rows={1} maxLength={1000} placeholder="Escribe una respuesta…" className="min-h-9 resize-none"/>
+                }} rows={1} maxLength={1000} placeholder="Escribe una respuesta…" className="min-h-10 resize-none border-primary/15 bg-slate-50/80"/>
                   <Button type="submit" size="icon-lg" disabled={!draft.trim()} aria-label="Enviar respuesta">
                     <Send aria-hidden="true"/>
                   </Button>

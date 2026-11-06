@@ -49,35 +49,35 @@ export function SupportView() {
       <SectionHeader eyebrow="Soporte técnico" title="Centro de ayuda" description="Reporta un problema y haz seguimiento con tu ID de ticket."/>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <form onSubmit={handleCreate} className="flex flex-col gap-4 rounded-2xl border bg-card p-5">
-          <h2 className="flex items-center gap-2 font-medium">
-            <LifeBuoy className="size-4 text-link" aria-hidden="true"/>
+        <form onSubmit={handleCreate} className="lumus-panel flex flex-col gap-4 bg-gradient-to-br from-white via-white to-sky-50 p-5">
+          <h2 className="flex items-center gap-2 text-lg font-medium">
+            <span className="grid size-9 place-items-center rounded-xl bg-primary/10 text-link"><LifeBuoy className="size-4" aria-hidden="true"/></span>
             Nuevo ticket
           </h2>
           <div className="flex flex-col gap-2">
             <Label htmlFor="ticket-subject">Asunto</Label>
-            <Input id="ticket-subject" name="subject" placeholder="Ej. Error al cargar evidencia" maxLength={90}/>
+            <Input id="ticket-subject" name="subject" placeholder="Ej. Error al cargar evidencia" maxLength={90} className="h-10"/>
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="ticket-description">Descripción</Label>
-            <Textarea id="ticket-description" name="description" rows={5} maxLength={1000} placeholder="¿Qué ocurrió? ¿Qué pasos seguiste?"/>
+            <Textarea id="ticket-description" name="description" rows={5} maxLength={1000} placeholder="¿Qué ocurrió? ¿Qué pasos seguiste?" className="resize-none"/>
           </div>
-          <Button type="submit" className="self-start">
+          <Button type="submit" className="self-start px-5 shadow-sm">
             Enviar ticket
           </Button>
         </form>
 
-        <div className="flex flex-col gap-4 rounded-2xl border bg-card p-5">
-          <h2 className="flex items-center gap-2 font-medium">
-            <Search className="size-4 text-link" aria-hidden="true"/>
+        <div className="lumus-panel flex flex-col gap-4 bg-gradient-to-br from-white via-white to-primary/5 p-5">
+          <h2 className="flex items-center gap-2 text-lg font-medium">
+            <span className="grid size-9 place-items-center rounded-xl bg-primary/10 text-link"><Search className="size-4" aria-hidden="true"/></span>
             Consultar estado
           </h2>
           <form onSubmit={handleLookup} className="flex gap-2">
             <label htmlFor="tracking" className="sr-only">
               ID de seguimiento
             </label>
-            <Input id="tracking" value={tracking} onChange={(e) => setTracking(e.target.value)} placeholder="LUM-4821" className="h-9 font-mono"/>
-            <Button type="submit" variant="secondary" className="h-9">
+            <Input id="tracking" value={tracking} onChange={(e) => setTracking(e.target.value)} placeholder="LUM-4821" className="h-10 font-mono"/>
+            <Button type="submit" variant="secondary" className="h-10 px-4">
               Buscar
             </Button>
           </form>
@@ -105,7 +105,7 @@ export function SupportView() {
                     <button type="button" onClick={() => {
                     setTracking(t.trackingId);
                     setLookup(t);
-                }} className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent">
+                }} className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent">
                       <span className="truncate">
                         <span className="mr-2 font-mono text-xs text-muted-foreground">{t.trackingId}</span>
                         {t.subject}

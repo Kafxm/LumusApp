@@ -69,46 +69,49 @@ export function CatalogView({ mode, onRequireCompany }) {
     return (<div className="flex flex-col gap-6">
       <SectionHeader eyebrow={copy.eyebrow} title={copy.title} description={copy.description}/>
 
-      <form role="search" onSubmit={(e) => e.preventDefault()} className="grid gap-3 rounded-2xl border bg-card p-4 sm:grid-cols-[1fr_180px_180px_auto] sm:items-end">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="search" className="text-xs text-muted-foreground">
-            Buscar
-          </Label>
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true"/>
-            <Input id="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Nombre, habilidad o tecnología" className="h-9 pl-9"/>
+      <form role="search" onSubmit={(e) => e.preventDefault()} className="lumus-panel relative overflow-hidden bg-gradient-to-br from-white via-white to-primary/5 p-4 sm:p-5">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(114,157,242,0.12),transparent_28%)]" aria-hidden="true"/>
+        <div className="relative grid gap-3 sm:grid-cols-[1fr_180px_180px_auto] sm:items-end">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="search" className="text-xs font-medium text-muted-foreground">
+              Buscar
+            </Label>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true"/>
+              <Input id="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Nombre, habilidad o tecnología" className="h-10 pl-9 shadow-sm"/>
+            </div>
           </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="language" className="text-xs font-medium text-muted-foreground">
+              Lenguaje
+            </Label>
+            <select id="language" value={language} onChange={(e) => setLanguage(e.target.value)} className={selectClass}>
+              <option value="">Todos</option>
+              {LANGUAGES.map((l) => (<option key={l} value={l}>
+                  {l}
+                </option>))}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="database" className="text-xs font-medium text-muted-foreground">
+              Base de datos
+            </Label>
+            <select id="database" value={database} onChange={(e) => setDatabase(e.target.value)} className={selectClass}>
+              <option value="">Todas</option>
+              {DATABASES.map((d) => (<option key={d} value={d}>
+                  {d}
+                </option>))}
+            </select>
+          </div>
+          <Button type="button" variant="ghost" className="h-10" disabled={!hasFilters} onClick={() => {
+              setQuery('');
+              setLanguage('');
+              setDatabase('');
+          }}>
+            <X aria-hidden="true"/>
+            Limpiar
+          </Button>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="language" className="text-xs text-muted-foreground">
-            Lenguaje
-          </Label>
-          <select id="language" value={language} onChange={(e) => setLanguage(e.target.value)} className={selectClass}>
-            <option value="">Todos</option>
-            {LANGUAGES.map((l) => (<option key={l} value={l}>
-                {l}
-              </option>))}
-          </select>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="database" className="text-xs text-muted-foreground">
-            Base de datos
-          </Label>
-          <select id="database" value={database} onChange={(e) => setDatabase(e.target.value)} className={selectClass}>
-            <option value="">Todas</option>
-            {DATABASES.map((d) => (<option key={d} value={d}>
-                {d}
-              </option>))}
-          </select>
-        </div>
-        <Button type="button" variant="ghost" className="h-9" disabled={!hasFilters} onClick={() => {
-            setQuery('');
-            setLanguage('');
-            setDatabase('');
-        }}>
-          <X aria-hidden="true"/>
-          Limpiar
-        </Button>
       </form>
 
       <p className="text-sm text-muted-foreground" aria-live="polite">
@@ -126,11 +129,11 @@ export function CatalogView({ mode, onRequireCompany }) {
             <DialogDescription>Portafolio público del creador</DialogDescription>
           </DialogHeader>
           {detail && (<div className="flex flex-col gap-6">
-              <CreatorSummary creator={detail} actions={<Button size="sm" className="mr-8" onClick={() => {
-                      const creator = detail;
-                      setDetail(null);
-                      handleContact(creator);
-                  }}>
+              <CreatorSummary creator={detail} actions={<Button size="sm" onClick={() => {
+                    const creator = detail;
+                    setDetail(null);
+                    handleContact(creator);
+                }}>
                     Contactar
                   </Button>}/>
               <div className="flex flex-col gap-3">

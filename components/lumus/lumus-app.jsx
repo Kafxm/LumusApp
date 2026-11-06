@@ -18,21 +18,20 @@ import { SupportView } from './views/support-view';
 const NAV = {
     invitado: [
         { id: 'inicio', label: 'Inicio', icon: Home },
-        { id: 'explorar', label: 'Explorar talento', icon: Search },
+        { id: 'explorar', label: 'Explorar', icon: Search },
         { id: 'planes', label: 'Planes', icon: CreditCard },
-        { id: 'ingresar', label: 'Iniciar sesión', icon: LogIn },
+        { id: 'ingresar', label: 'Ingresar', icon: LogIn },
     ],
     creador: [
         { id: 'inicio', label: 'Inicio', icon: Home },
-        { id: 'explorar', label: 'Explorar talento', icon: Search },
-        { id: 'portafolio', label: 'Mi portafolio', icon: UserRound },
+        { id: 'explorar', label: 'Explorar', icon: Search },
+        { id: 'portafolio', label: 'Portafolio', icon: UserRound },
         { id: 'buzon', label: 'Buzón', icon: Inbox },
-        { id: 'planes', label: 'Suscripción', icon: CreditCard },
         { id: 'soporte', label: 'Soporte', icon: LifeBuoy },
     ],
     empresa: [
         { id: 'inicio', label: 'Inicio', icon: Home },
-        { id: 'explorar', label: 'Explorar talento', icon: Search },
+        { id: 'explorar', label: 'Explorar', icon: Search },
         { id: 'catalogo', label: 'Catálogo', icon: Briefcase },
         { id: 'favoritos', label: 'Favoritos', icon: Heart },
         { id: 'buzon', label: 'Buzón', icon: Inbox },
@@ -40,8 +39,8 @@ const NAV = {
     ],
     admin: [
         { id: 'inicio', label: 'Inicio', icon: Home },
-        { id: 'explorar', label: 'Explorar talento', icon: Search },
-        { id: 'admin', label: 'Panel admin', icon: LayoutDashboard },
+        { id: 'explorar', label: 'Explorar', icon: Search },
+        { id: 'admin', label: 'Admin', icon: LayoutDashboard },
     ],
 };
 
@@ -53,7 +52,7 @@ function Shell() {
     const [currentUser, setCurrentUser] = useState(null);
     const [authReady, setAuthReady] = useState(false);
     const [authRequest, setAuthRequest] = useState({ mode: 'login', role: 'creador' });
-    const nav = NAV[state.role] ?? NAV.invitado;
+    const nav = state.role === 'admin' ? NAV.admin : NAV[state.role] ?? NAV.invitado;
     const activeView = nav.some((item) => item.id === view) ? view : nav[0].id;
 
     function getRoleHome(role) {
@@ -197,19 +196,19 @@ function Shell() {
 
     return (
         <div className="flex min-h-dvh flex-col">
-            <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-xl">
-                <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
+            <header className="sticky top-0 z-40 border-b border-primary/10 bg-white/80 backdrop-blur-xl">
+                <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
                     <button
                         type="button"
                         onClick={() => setView('inicio')}
-                        className="rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                        className="shrink-0 rounded-xl outline-none transition-transform hover:scale-[1.01] focus-visible:ring-3 focus-visible:ring-ring/50"
                         aria-label="Lumus, ir al inicio"
                     >
                         <LumusLogo />
                     </button>
 
-                    <nav aria-label="Principal" className="hidden flex-1 md:block">
-                        <ul className="flex items-center gap-1">
+                    <nav aria-label="Principal" className="hidden flex-1 justify-center md:block">
+                        <ul className="flex items-center justify-center gap-1.5">
                             {nav.map((item) => (
                                 <li key={item.id}>
                                     <NavButton
@@ -226,22 +225,24 @@ function Shell() {
                     <div className="ml-auto flex items-center gap-2">
                         {currentUser ? (
                             <>
-                                <span className="hidden text-xs text-muted-foreground sm:block">{currentUser.name}</span>
-                                <Button variant="ghost" size="sm" aria-label="Cerrar sesión" onClick={handleLogout}>
+                                <span className="hidden rounded-full border border-primary/10 bg-primary/5 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground sm:block">
+                                    {currentUser.name}
+                                </span>
+                                <Button variant="ghost" size="sm" aria-label="Cerrar sesión" onClick={handleLogout} className="h-8 px-2.5 text-xs">
                                     <LogOut aria-hidden="true" />
-                                    Cerrar sesión
+                                    Salir
                                 </Button>
                             </>
                         ) : (
-                            <Button variant="ghost" size="sm" onClick={() => openAuth()}>
+                            <Button variant="ghost" size="sm" onClick={() => openAuth()} className="h-8 px-2.5 text-xs">
                                 <LogIn aria-hidden="true" />
-                                Iniciar sesión
+                                Entrar
                             </Button>
                         )}
                     </div>
                 </div>
 
-                <nav aria-label="Principal móvil" className="border-t md:hidden">
+                <nav aria-label="Principal móvil" className="border-t border-primary/10 md:hidden">
                     <ul className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 py-2">
                         {nav.map((item) => (
                             <li key={item.id} className="shrink-0">
@@ -261,7 +262,7 @@ function Shell() {
                 {renderView()}
             </main>
 
-            <footer className="border-t">
+            <footer className="border-t border-primary/10 bg-white/60">
                 <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
                     <LumusLogo className="text-foreground" />
                     <p>Prototipo funcional · Datos de demostración guardados en este navegador.</p>
@@ -279,14 +280,16 @@ function NavButton({ item, active, badge, onClick }) {
             onClick={onClick}
             aria-current={active ? 'page' : undefined}
             className={cn(
-                'flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50',
-                active ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground',
+                'flex items-center gap-2 rounded-full border px-2.5 py-1.5 text-[11px] font-medium outline-none transition-all duration-200 focus-visible:ring-3 focus-visible:ring-ring/50 sm:text-xs',
+                active
+                    ? 'border-primary/15 bg-primary/8 text-foreground shadow-sm'
+                    : 'border-transparent bg-transparent text-muted-foreground hover:border-primary/10 hover:bg-primary/5 hover:text-foreground',
             )}
         >
-            <Icon className="size-4" aria-hidden="true" />
-            {item.label}
+            <Icon className="size-3.5" aria-hidden="true" />
+            <span className="leading-none">{item.label}</span>
             {badge > 0 && (
-                <span className="grid min-w-5 place-items-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">
+                <span className="grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[9px] font-semibold text-primary-foreground">
                     {badge}
                     <span className="sr-only"> sin leer</span>
                 </span>

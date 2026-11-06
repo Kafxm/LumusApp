@@ -13,6 +13,9 @@ __v0_jsx-dev-runtime.ts
 !.env.example
 .env*.local
 
+# Local planning document
+/Documents/Historia de Usuario.xlsx
+
 # Common ignores
 node_modules
 .next/
