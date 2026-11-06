@@ -1,4 +1,5 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { ArrowRight, Building2, FileVideo, GitBranch, Search, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLumus } from '@/lib/lumus/store';
@@ -22,7 +23,32 @@ const FEATURES = [
 ];
 export function HomeView({ onEnter, onNavigate }) {
     const { state } = useLumus();
-    const featured = state.creators.slice(0, 4);
+    const [featuredProfile, setFeaturedProfile] = useState(null);
+
+    useEffect(() => {
+        if (!state.creators?.length) {
+            setFeaturedProfile(null);
+            return;
+        }
+
+        const verifiedProfiles = state.creators.filter((creator) => creator.verified);
+        const source = verifiedProfiles.length > 0 ? verifiedProfiles : state.creators;
+
+        const pickRandomProfile = () => {
+            setFeaturedProfile((current) => {
+                const pool = source.filter((creator) => creator.id !== current?.id);
+                const candidates = pool.length > 0 ? pool : source;
+                const randomIndex = Math.floor(Math.random() * candidates.length);
+                return candidates[randomIndex];
+            });
+        };
+
+        pickRandomProfile();
+        const timer = window.setInterval(pickRandomProfile, 12000);
+
+        return () => window.clearInterval(timer);
+    }, [state.creators]);
+
     const showCreatorEntry = state.role !== 'empresa' && state.role !== 'admin';
     const showCompanyEntry = state.role !== 'creador' && state.role !== 'admin';
 
@@ -90,28 +116,37 @@ export function HomeView({ onEnter, onNavigate }) {
                     <div className="relative flex min-h-[360px] items-center justify-center">
                         <div className="absolute inset-x-10 top-8 h-32 rounded-full bg-primary/12 blur-3xl" />
                         <div className="relative w-full max-w-md rounded-[30px] border border-primary/15 bg-white/90 p-5 shadow-[0_30px_80px_rgba(35,63,112,0.12)] backdrop-blur xl:p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Perfil destacado</p>
-                                    <h3 className="mt-2 text-2xl font-semibold">Valentina Ríos</h3>
-                                </div>
-                                <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-link">Verificada</span>
-                            </div>
-
-                            <div className="mt-5 rounded-2xl bg-gradient-to-br from-primary/10 via-sky-100 to-white p-4">
-                                <div className="flex items-center gap-3">
-                                    <CreatorAvatar creator={featured[0]} className="size-14" />
+                            <div
+                                key={featuredProfile?.id ?? 'featured-fallback'}
+                                className="animate-[crossfade_1.2s_ease-in-out]"
+                            >
+                                <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="font-medium">Full Stack Developer</p>
-                                        <p className="text-sm text-muted-foreground">Java · React · MySQL</p>
+                                        <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Perfil destacado</p>
+                                        <h3 className="mt-2 text-2xl font-semibold">{featuredProfile?.name ?? 'Perfil destacado'}</h3>
                                     </div>
+                                    {featuredProfile?.verified && (
+                                        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-link">Verificada</span>
+                                    )}
                                 </div>
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                    {['Java', 'Spring', 'React', 'SQL'].map((tag) => (
-                                        <span key={tag} className="rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-medium text-link ring-1 ring-primary/10">
-                                            {tag}
-                                        </span>
-                                    ))}
+
+                                <div className="mt-5 rounded-2xl bg-gradient-to-br from-primary/10 via-sky-100 to-white p-4">
+                                    <div className="flex items-center gap-3">
+                                        <CreatorAvatar creator={featuredProfile} className="size-14" />
+                                        <div>
+                                            <p className="font-medium">{featuredProfile?.title ?? 'Especialista en tecnología'}</p>
+                                            <p className="text-sm text-muted-foreground">
+                                                {(featuredProfile?.languages ?? ['Java']).slice(0, 3).join(' · ')}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 flex flex-wrap gap-2">
+                                        {(featuredProfile?.languages ?? ['Java', 'React', 'SQL']).slice(0, 4).map((tag) => (
+                                            <span key={tag} className="rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-medium text-link ring-1 ring-primary/10">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
@@ -141,7 +176,7 @@ export function HomeView({ onEnter, onNavigate }) {
                     </Button>
                 </div>
                 <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    {featured.map((c) => (
+                    {(state.creators ?? []).map((c) => (
                         <li key={c.id} className="lumus-panel lumus-card-hover flex flex-col items-center gap-3 p-5 text-center">
                             <CreatorAvatar creator={c} className="size-16 ring-4 ring-primary/10" />
                             <div className="flex flex-col gap-1">
@@ -151,7 +186,7 @@ export function HomeView({ onEnter, onNavigate }) {
                                 </p>
                                 <p className="line-clamp-2 text-xs text-muted-foreground">{c.title}</p>
                             </div>
-                            <p className="font-mono text-[11px] text-link">{c.languages.join(' · ')}</p>
+                            <p className="font-mono text-[11px] text-link">{(c.languages ?? []).join(' · ')}</p>
                         </li>
                     ))}
                 </ul>

@@ -21,10 +21,14 @@ export function BoostBadge({ className }) {
     </span>);
 }
 export function CreatorAvatar({ creator, className }) {
-    return (<Avatar className={cn('size-12', className)}>
-      <AvatarImage src={creator.avatar || '/placeholder.svg'} alt={`Foto de ${creator.name}`}/>
-      <AvatarFallback>{initials(creator.name)}</AvatarFallback>
-    </Avatar>);
+    const safeCreator = creator ?? { name: 'Lumus', avatar: '/placeholder.svg' };
+
+    return (
+      <Avatar className={cn('size-12', className)}>
+        <AvatarImage src={safeCreator.avatar || '/placeholder.svg'} alt={`Foto de ${safeCreator.name}`} />
+        <AvatarFallback>{initials(safeCreator.name)}</AvatarFallback>
+      </Avatar>
+    );
 }
 export function TechTag({ children, tone = 'default' }) {
     return (<span className={cn('inline-flex items-center rounded-md px-2 py-0.5 font-mono text-[11px] ring-1', tone === 'db'

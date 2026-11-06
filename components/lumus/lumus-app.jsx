@@ -27,6 +27,7 @@ const NAV = {
         { id: 'explorar', label: 'Explorar', icon: Search },
         { id: 'portafolio', label: 'Portafolio', icon: UserRound },
         { id: 'buzon', label: 'Buzón', icon: Inbox },
+        { id: 'planes', label: 'Planes', icon: CreditCard },
         { id: 'soporte', label: 'Soporte', icon: LifeBuoy },
     ],
     empresa: [
